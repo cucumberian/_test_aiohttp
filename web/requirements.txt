@@ -1,0 +1,4 @@
+aiohttp
+pydantic
+celery[redis]
+gunicorn

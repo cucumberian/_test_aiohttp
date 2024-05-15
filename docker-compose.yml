@@ -1,0 +1,36 @@
+version: "3.8"
+
+services:
+  web:
+    build:
+      context: web
+      dockerfile: docker/Dockerfile
+    command: python app.py
+    restart: unless-stopped
+    ports:
+      - 80:8000
+    depends_on: 
+      - worker
+    environment:
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+  
+  redis:
+    image: redis:latest
+    restart: unless-stopped
+    ports:
+      - 6380:6379
+  
+  worker:
+    build:
+      context: web
+      dockerfile: docker/Dockerfile
+    command: celery -A celery_app worker --loglevel=INFO --concurrency=4
+    restart: unless-stopepd
+    depends_on:
+      - redis
+    environment:
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+
+    
