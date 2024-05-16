@@ -16,5 +16,6 @@ async def hash_view(request) -> HashResponse:
 
 async def async_calc_hash(string: str) -> str:
     result = calc_hash.delay(string=string)
-    ans = result.get()
-    return ans
+    while not result.ready():
+        await asyncio.sleep(0.01)
+        return result.result
